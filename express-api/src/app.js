@@ -7,12 +7,10 @@ app.use(express.json());
 
 // Définition des routes
 const routeInit = require("./routes/init");
-app.use("/api/init", routeInit);
+app.use("/", routeInit);
 
-// Route de base pour tester si l'API fonctionne
-app.get("/", (req, res) => {
-    res.json({ message: "Bienvenue sur l'API !" });
-});
+const routeTest = require("./routes/test");
+app.use("/test", routeTest);
 
-// Exporter app APRES avoir défini les routes
+
 module.exports = app;
