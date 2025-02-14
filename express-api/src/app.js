@@ -13,4 +13,8 @@ const routeTest = require("./routes/test");
 app.use("/test", routeTest);
 
 
+const registerRoute = require("./routes/register");
+app.use("/register", registerRoute);
+
+
 module.exports = app;
