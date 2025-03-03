@@ -4,7 +4,6 @@ const express = require("express");
 const cors = require("cors");
 const session = require('express-session');
 const passport = require('passport');
-require('./config/passport-config'); // Assure-toi que ce chemin est correct
 
 
 const app = express();

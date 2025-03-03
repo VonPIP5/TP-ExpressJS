@@ -5,34 +5,35 @@ const db = require('../config/db');
 const router = express.Router();
 const SECRET_KEY = process.env.JWT_SECRET || "ton_secret_key_super_securise"; // ⚠️ À stocker dans un fichier .env
 
-// Verification Token
-const verifyAdmin = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ error: 'Token manquant' });
-    }
+// Vérification token
+const verifyToken = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
 
-    jwt.verify(token, SECRET_KEY, (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ error: 'Token invalide ou expiré' });
-        }
+  if (!token) {
+      return res.status(401).json({ error: 'Token manquant' });
+  }
 
-        // Vérifie si l'utilisateur n'est pas ban
-        if (decoded.etatban !== 0) {
-            return res.status(403).json({ error: 'Accès interdit : vous êtes banni' });
-        }
+  try {
+      const decoded = jwt.verify(token, SECRET_KEY);
 
-        // Vérifier si l'utilisateur est un admin
-        if (decoded.role !== 'admin') {
-            return res.status(403).json({ error: 'Accès refusé : vous devez être administrateur' });
-        }
+      const [user] = await db.query('SELECT etatban FROM users WHERE id = ?', [decoded.id]);
 
-        req.user = decoded;
-        next();
-    });
+      if (user.length === 0 || user[0].etatban === 1) {
+          return res.status(403).json({ error: 'Accès interdit : utilisateur banni' });
+      }
+
+      if (decoded.role !== 'admin') {
+          return res.status(403).json({ error: 'Accès refusé : vous devez être administrateur' });
+      }
+
+      req.user = decoded;
+      next();
+  } catch (err) {
+      return res.status(403).json({ error: 'Token invalide ou expiré' });
+  }
 };
 
-router.delete('/:id', verifyTokenAndAdmin, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
