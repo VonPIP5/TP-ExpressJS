@@ -1,20 +1,10 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
-// Crée une connexion à la base de données MariaDB
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
   database: 'dbExpress'
-})
-
-// Vérifie la connexion
-connection.connect(err => {
-  if (err) {
-    console.error('Erreur de connexion à la base de données:', err);
-    return;
-  }
-  console.log('Connecté à la base de données MariaDB');
 });
 
-module.exports = connection;
+module.exports = pool;
